@@ -11,6 +11,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\TemayudaController;
 use App\Http\Controllers\TrazabilidadController;
+use App\Http\Controllers\SeguridadController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -21,6 +22,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     
+    Route::prefix('seguridad')->group(function () {    
+        Route::post('permisoobjetosel', [SeguridadController::class, 'permisoobjetosel']);
+        Route::post('perfilusuarioapp', [SeguridadController::class, 'perfilusuarioapp']);
+    });
+
     Route::prefix('maestro')->group(function () {    
         Route::post('tipodocidesel', [MaestroController::class, 'tipodocidesel']);
     });
