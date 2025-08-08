@@ -49,17 +49,17 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            // Crear usuario virtual (puedes usar un User real si hay match en tu tabla users)
             $user = new \App\Models\User([
-                'id' => $response['numid']
+                'id' => 1
             ]);
-
-            // Autenticamos manualmente al usuario para generar el token
+            
             $token = JWTAuth::fromUser($user);
-
+            
             return response()->json([
                 'token' => $token,
-                'user' => $user,
+                'user' => [
+                    'id' => $response['numid']
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -74,7 +74,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'p_usu_id' => 'required|integer',
-            'p_age_activo' => 'required|integer',
+            'p_usu_activo' => 'required|integer',
         ]);
         
         if ($validator->fails()) {
@@ -84,17 +84,17 @@ class AuthController extends Controller
                 'errors' => $validator->errors()
             ], 400);
         }
-        
         try {
-            $p_age_id = $request->has('p_age_id') ? (int) $request->input('p_age_id') : 0;
             $p_usu_id = $request->has('p_usu_id') ? (int) $request->input('p_usu_id') : 0;
             $p_usu_apepat = $request->has('p_usu_apepat') ? (string) $request->input('p_usu_apepat') : '';
             $p_usu_apemat = $request->has('p_usu_apemat') ? (string) $request->input('p_usu_apemat') : '';
             $p_usu_nombre = $request->has('p_usu_nombre') ? (string) $request->input('p_usu_nombre') : '';
-            $p_age_activo = $request->has('p_age_activo') ? (int) $request->input('p_age_activo') : 1;
+            $p_usu_loging = $request->has('p_usu_loging') ? (string) $request->input('p_usu_loging') : '';
+            $p_usu_chkadm = $request->has('p_usu_chkadm') ? (int) $request->input('p_usu_chkadm') : 9;
+            $p_usu_activo = $request->has('p_usu_activo') ? (int) $request->input('p_usu_activo') : 9;
 
-            $results = DB::select("SELECT * FROM tickets.spu_agente_sel(?,?,?,?,?,?)", [
-                $p_age_id,$p_usu_id,$p_usu_apepat,$p_usu_apemat,$p_usu_nombre,$p_age_activo
+            $results = DB::select("SELECT * FROM tickets.spu_usuario_age(?,?,?,?,?,?,?)", [
+                $p_usu_id, $p_usu_apepat, $p_usu_apemat, $p_usu_nombre, $p_usu_loging, $p_usu_chkadm, $p_usu_activo
             ]);
             return response()->json($results);
         } catch (\Exception $e) {

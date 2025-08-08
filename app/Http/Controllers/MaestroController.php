@@ -41,4 +41,36 @@ class MaestroController extends Controller
             ], 500);
         }
     }
+    
+    public function origensel(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'p_ori_id' => 'required|integer',
+            'p_ori_activo' => 'required|integer'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en la validación de datos',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+        
+        try {
+            $p_ori_id = $request->has('p_ori_id') ? (int) $request->input('p_ori_id') : 0;
+            $p_ori_activo = $request->has('p_ori_activo') ? (int) $request->input('p_ori_activo') : 1;
+
+            $results = DB::select("SELECT * FROM tickets.spu_origen_sel(?,?)", [
+                $p_ori_id, $p_ori_activo
+            ]);
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los datos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

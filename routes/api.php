@@ -29,6 +29,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('maestro')->group(function () {    
         Route::post('tipodocidesel', [MaestroController::class, 'tipodocidesel']);
+        Route::post('origensel', [MaestroController::class, 'origensel']);
     });
     
     Route::prefix('colaborador')->group(function () {    
@@ -37,7 +38,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('equipocalidadsel', [ColaboradorController::class, 'equipocalidadsel']);
     });
     
-    Route::prefix('testsoftware')->group(function () {
+    Route::prefix('ticket')->group(function () {
         Route::post('agentegra', [AgenteController::class, 'agentegra']);
         Route::post('agentesel', [AgenteController::class, 'agentesel']);
         Route::post('archivossel', [ArchivoController::class, 'archivossel']);
@@ -71,6 +72,10 @@ Route::middleware('auth:api')->group(function () {
         Route::post('ticketsrea', [TicketController::class, 'ticketsrea']);
         Route::post('ticketsres', [TicketController::class, 'ticketsres']);
         Route::post('ticketsrus', [TicketController::class, 'ticketsrus']);
+        Route::post('ticketssel', [TicketController::class, 'ticketssel']);
+        Route::post('ticketslis', [TicketController::class, 'ticketslis']);
+        Route::post('ticketsver', [TicketController::class, 'ticketsver']);
+        Route::post('ticketsdsh', [TicketController::class, 'ticketsdsh']);
         Route::post('ticketsxagesel', [TicketController::class, 'ticketsxagesel']);
         Route::post('ticketsxainsel', [TicketController::class, 'ticketsxainsel']);
         Route::post('ticketsxapesel', [TicketController::class, 'ticketsxapesel']);
