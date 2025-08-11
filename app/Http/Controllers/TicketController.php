@@ -763,18 +763,7 @@ class TicketController extends Controller
 
     public function ticketsver(Request $request): JsonResponse{
             $validator = Validator::make($request->all(), [
-                'p_tkt_id' => 'required|integer',
-                'p_tkt_numero' => 'required|integer',
-                'p_est_id' => 'required|integer',
-                'p_tea_id' => 'required|integer',
-                'p_pri_id' => 'required|integer',
-                'p_equ_id' => 'required|integer',
-                'p_age_id' => 'required|integer',
-                'p_usu_id' => 'required|integer',
-                'p_ori_id' => 'required|integer',
-                'p_sed_id' => 'required|integer',
-                'p_ard_id' => 'required|integer',
-                'p_tkt_activo' => 'required|integer'
+                'p_tkt_id' => 'required|integer'
             ]);
             
             if ($validator->fails()) {
@@ -787,22 +776,9 @@ class TicketController extends Controller
             
             try {
                 $p_tkt_id = $request->has('p_tkt_id') ? (int) $request->input('p_tkt_id') : 0;
-                $p_tkt_numero = $request->has('p_tkt_numero') ? (int) $request->input('p_tkt_numero') : 0;
-                $p_est_id = $request->has('p_est_id') ? (int) $request->input('p_est_id') : 0;
-                $p_tea_id = $request->has('p_tea_id') ? (int) $request->input('p_tea_id') : 0;
-                $p_pri_id = $request->has('p_pri_id') ? (int) $request->input('p_pri_id') : 0;
-                $p_equ_id = $request->has('p_equ_id') ? (int) $request->input('p_equ_id') : 0;
-                $p_age_id = $request->has('p_age_id') ? (int) $request->input('p_age_id') : 0;
-                $p_usu_id = $request->has('p_usu_id') ? (int) $request->input('p_usu_id') : 0;
-                $p_ori_id = $request->has('p_ori_id') ? (int) $request->input('p_ori_id') : 0;
-                $p_sed_id = $request->has('p_sed_id') ? (int) $request->input('p_sed_id') : 0;
-                $p_ard_id = $request->has('p_ard_id') ? (int) $request->input('p_ard_id') : 0;
-                $p_tkt_fecini = $request->has('p_tkt_fecini') ? (string) $request->input('p_tkt_fecini') : '';
-                $p_tkt_fecfin = $request->has('p_tkt_fecfin') ? (string) $request->input('p_tkt_fecfin') : '';
-                $p_tkt_activo = $request->has('p_tkt_activo') ? (int) $request->input('p_tkt_activo') : 1;
 
-                $results = DB::select("SELECT * FROM tickets.spu_tickets_sel(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [
-                    $p_tkt_id,$p_tkt_numero,$p_est_id,$p_tea_id,$p_pri_id,$p_equ_id,$p_age_id,$p_usu_id,$p_ori_id,$p_sed_id,$p_ard_id,$p_tkt_fecini,$p_tkt_fecfin,$p_tkt_activo
+                $results = DB::select("SELECT * FROM tickets.spu_tickets_ver(?)", [
+                    $p_tkt_id
                 ]);
                 return response()->json($results);
             } catch (\Exception $e) {

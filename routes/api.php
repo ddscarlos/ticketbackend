@@ -12,6 +12,7 @@ use App\Http\Controllers\SedeController;
 use App\Http\Controllers\TemayudaController;
 use App\Http\Controllers\TrazabilidadController;
 use App\Http\Controllers\SeguridadController;
+use App\Http\Controllers\FilePreviewController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -21,6 +22,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('me', [AuthController::class, 'userProfile']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
+    
+    Route::post('/files/base64-from-path', [FilePreviewController::class, 'base64FromPath'])->name('files.base64FromPath');    
     
     Route::prefix('seguridad')->group(function () {    
         Route::post('permisoobjetosel', [SeguridadController::class, 'permisoobjetosel']);
@@ -42,6 +45,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('agentegra', [AgenteController::class, 'agentegra']);
         Route::post('agentesel', [AgenteController::class, 'agentesel']);
         Route::post('archivossel', [ArchivoController::class, 'archivossel']);
+        Route::post('archivosanu', [ArchivoController::class, 'archivosanu']);
         Route::post('areausuarioanu', [AreaController::class, 'areausuarioanu']);
         Route::post('areausuariogra', [AreaController::class, 'areausuariogra']);
         Route::post('areausuariosel', [AreaController::class, 'areausuariosel']);
