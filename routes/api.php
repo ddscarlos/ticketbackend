@@ -52,6 +52,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('equipogra', [TicketController::class, 'equipogra']);
         Route::post('equiposel', [TicketController::class, 'equiposel']);
         Route::post('estadossel', [TicketController::class, 'estadossel']);
+        Route::post('estadosrespuestasel', [TicketController::class, 'estadosrespuestasel']);
         Route::post('prioridadsel', [TicketController::class, 'prioridadsel']);
         Route::post('rutassel', [TicketController::class, 'rutassel']);
         Route::post('serviciossel', [TicketController::class, 'serviciossel']);

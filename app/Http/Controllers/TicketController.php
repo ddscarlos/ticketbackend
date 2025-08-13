@@ -40,6 +40,37 @@ class TicketController extends Controller
                 ], 500);
             }
     }
+    
+    public function estadosrespuestasel(Request $request): JsonResponse{
+            $validator = Validator::make($request->all(), [
+                'p_esr_id' => 'required|integer',
+                'p_esr_activo' => 'required|integer'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error en la validación de datos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+            
+            try {
+                $p_esr_id = $request->has('p_esr_id') ? (int) $request->input('p_esr_id') : 0;
+                $p_esr_activo = $request->has('p_esr_activo') ? (int) $request->input('p_esr_activo') : 1;
+
+                $results = DB::select("SELECT * FROM tickets.spu_estadosrespuesta_sel(?,?)", [
+                    $p_esr_id,$p_esr_activo
+                ]);
+                return response()->json($results);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los datos',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+    }
 
     public function prioridadsel(Request $request): JsonResponse{
             $validator = Validator::make($request->all(), [
@@ -716,7 +747,7 @@ class TicketController extends Controller
             }
     }
 
-    public function ticketslis(Request $request): JsonResponse{
+    public function ticketslis(Request $request): JsonResponse{            
             $validator = Validator::make($request->all(), [
                 'p_tkt_id' => 'required|integer',
                 'p_tkt_numero' => 'required|integer',
@@ -746,10 +777,16 @@ class TicketController extends Controller
                 $p_usu_id = $request->has('p_usu_id') ? (int) $request->input('p_usu_id') : 0;
                 $p_tkt_fecini = $request->has('p_tkt_fecini') ? (string) $request->input('p_tkt_fecini') : '';
                 $p_tkt_fecfin = $request->has('p_tkt_fecfin') ? (string) $request->input('p_tkt_fecfin') : '';
+                
+                $p_jsn_permis = $request->input('p_jsn_permis');
+                if (is_array($p_jsn_permis)) {
+                    $p_jsn_permis = json_encode($p_jsn_permis, JSON_UNESCAPED_UNICODE);
+                }
+                
                 $p_tkt_activo = $request->has('p_tkt_activo') ? (int) $request->input('p_tkt_activo') : 1;
                 
-                $results = DB::select("SELECT * FROM tickets.spu_tickets_lis(?,?,?,?,?,?,?,?,?,?)", [
-                    $p_tkt_id,$p_tkt_numero,$p_est_id,$p_tea_id,$p_pri_id,$p_age_id,$p_usu_id,$p_tkt_fecini,$p_tkt_fecfin,$p_tkt_activo
+                $results = DB::select("SELECT * FROM tickets.spu_tickets_lis(?,?,?,?,?,?,?,?,?,?,?)", [
+                    $p_tkt_id,$p_tkt_numero,$p_est_id,$p_tea_id,$p_pri_id,$p_age_id,$p_usu_id,$p_tkt_fecini,$p_tkt_fecfin,$p_jsn_permis,$p_tkt_activo
                 ]);
                 return response()->json($results);
             } catch (\Exception $e) {
@@ -795,7 +832,7 @@ class TicketController extends Controller
                 $p_tkt_fecini = $request->has('p_tkt_fecini') ? (string) $request->input('p_tkt_fecini') : '';
                 $p_tkt_fecfin = $request->has('p_tkt_fecfin') ? (string) $request->input('p_tkt_fecfin') : '';
 
-                $results = DB::select("SELECT * FROM tickets.spu_tickets_dsh(?,?)", [
+                $results = DB::select("SELECT * FROM tickets.spu_ticketsxdsh_sel(?,?)", [
                     $p_tkt_fecini,$p_tkt_fecfin
                 ]);
                 return response()->json($results);
