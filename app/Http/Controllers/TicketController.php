@@ -7,9 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {    
+    private const EMAIL_ATTACH_FILES = false;
+
     public function estadossel(Request $request): JsonResponse{
             $validator = Validator::make($request->all(), [
                 'p_est_id' => 'required|integer',
@@ -313,6 +317,9 @@ class TicketController extends Controller
             }
             
             try {
+                //CORREO DE USUARIO QUE REGISTRA
+                $p_usu_correo = $request->has('p_usu_correo') ? (string) $request->input('p_usu_correo') : '';
+                
                 $p_tkt_id = $request->has('p_tkt_id') ? (int) $request->input('p_tkt_id') : 0;
                 $p_tea_id = $request->has('p_tea_id') ? (int) $request->input('p_tea_id') : 0;
                 $p_usu_id = (int) $request->input('p_usu_id', 0);
@@ -321,6 +328,7 @@ class TicketController extends Controller
                 $p_tkt_asunto = $request->has('p_tkt_asunto') ? (string) $request->input('p_tkt_asunto') : '';
                 $p_tkt_observ = $request->has('p_tkt_observ') ? (string) $request->input('p_tkt_observ') : '';
                 $p_tkt_numcel = $request->has('p_tkt_numcel') ? (string) $request->input('p_tkt_numcel') : '';
+                
 
                 //echo "SELECT * FROM tickets.spu_tickets_gra($p_tkt_id,$p_tea_id,$p_usu_id,$p_ori_id,'$p_tkp_numero','$p_tkt_asunto','$p_tkt_observ','$p_tkt_numcel')";
                 $results = DB::select("SELECT * FROM tickets.spu_tickets_gra(?,?,?,?,?,?,?,?)", [
@@ -334,6 +342,7 @@ class TicketController extends Controller
                     if (!file_exists($uploadPath)) {
                         mkdir($uploadPath, 0755, true);
                     }
+                    $savedFiles = [];
 
                     if ($request->hasFile('files')) {
                         foreach ($request->file('files') as $file) {
@@ -349,11 +358,14 @@ class TicketController extends Controller
                             if (isset($nombreArchivoSp[0]) && isset($nombreArchivoSp[0]->mensa)) {
                                 $nuevoNombre = $nombreArchivoSp[0]->mensa;
                                 $file->move($uploadPath, $nuevoNombre);
+                                $savedFiles[] = $nuevoNombre;
                             } else {
                                 $file->move($uploadPath, $file->getClientOriginalName());
+                                $savedFiles[] = $original;
                             }
                         }
                     }
+                    $this->enviarCorreoTicketCreado($ticketId, $p_usu_correo, $savedFiles, false);
                 }
 
                 return response()->json($results);
@@ -785,6 +797,8 @@ class TicketController extends Controller
                 
                 $p_tkt_activo = $request->has('p_tkt_activo') ? (int) $request->input('p_tkt_activo') : 1;
                 
+                //echo "SELECT * FROM tickets.spu_tickets_lis($p_tkt_id,$p_tkt_numero,$p_est_id,$p_tea_id,$p_pri_id,$p_age_id,$p_usu_id,'$p_tkt_fecini','$p_tkt_fecfin','$p_jsn_permis',$p_tkt_activo)";
+                
                 $results = DB::select("SELECT * FROM tickets.spu_tickets_lis(?,?,?,?,?,?,?,?,?,?,?)", [
                     $p_tkt_id,$p_tkt_numero,$p_est_id,$p_tea_id,$p_pri_id,$p_age_id,$p_usu_id,$p_tkt_fecini,$p_tkt_fecfin,$p_jsn_permis,$p_tkt_activo
                 ]);
@@ -910,6 +924,181 @@ class TicketController extends Controller
                     'error' => $e->getMessage()
                 ], 500);
             }
+    }
+
+    private function enviarCorreoTicketCreado(int $ticketId, string $destinatario, array $savedFiles = [], bool $adjuntar = false): void
+    {
+        try {
+            if (empty($destinatario) || !filter_var($destinatario, FILTER_VALIDATE_EMAIL)) {
+                Log::warning('[tickets] Correo destinatario inválido', ['ticket_id' => $ticketId, 'correo' => $destinatario]);
+                return;
+            }
+
+            config([
+                'mail.default' => 'outlook',
+                'mail.from' => [
+                    'address' => env('MAIL_FROM_ADDRESS') ?: (env('MAIL_USERNAME') ?: 'ccuro.os@llamkasunperu.gob.pe'),
+                    'name'    => env('MAIL_FROM_NAME', 'Mesa de Ayuda'),
+                ],
+                'mail.mailers.outlook' => [
+                    'transport'  => 'smtp',
+                    'host'       => env('MAIL_HOST', 'smtp.office365.com'),
+                    'port'       => (int) env('MAIL_PORT', 587),
+                    'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+                    'username'   => env('MAIL_USERNAME', 'ccuro.os@llamkasunperu.gob.pe'),
+                    'password'   => env('MAIL_PASSWORD', 'carloscuro123*'),
+                    'timeout'    => 10,
+                    'auth_mode'  => null,
+                ],
+            ]);
+
+            // 1) Traer datos del ticket
+            $rows = DB::select('SELECT * FROM tickets.spu_tickets_cor(?)', [$ticketId]);
+            $t = $rows[0] ?? null;
+
+            if (!$t) {
+                Log::warning('[tickets] spu_tickets_cor no devolvió datos', ['ticket_id' => $ticketId]);
+                return; // No enviamos si no hay datos
+            }
+
+            // 2) Preparar datos
+            $esc = fn($v) => e((string)($v ?? '—'));
+
+            $tkt_numero   = $esc($t->tkt_numero ?? $ticketId);
+            $estado       = $esc($t->est_descri ?? '');
+            $estadoColor  = $t->est_colors ?? '#999';
+            $prioridad    = $esc($t->pri_descri ?? '');
+            $prioridadCol = $t->pri_colors ?? '#999';
+            $equipo       = $esc($t->equ_descri ?? '');
+            $asunto       = $esc($t->tkt_asunto ?? '');
+            $agente       = $esc($t->age_nomcom ?? '');
+            $tema         = $esc($t->tea_descri ?? '');
+            $fec          = $esc($t->tkt_fectkt ?? now()->toDateString());
+            $hor          = $esc($t->tkt_hortkt ?? now()->format('H:i:s'));
+
+            $nowHuman     = now()->format('d/m/Y H:i');
+            $subject      = '✅ Ticket #'.$tkt_numero.' registrado correctamente';
+
+            // 3) HTML SIN BLADE
+            $archivosHtml = '';
+            $n = is_array($savedFiles) ? count($savedFiles) : 0;  // cantidad de archivos
+            $etq = ($n === 1) ? 'archivo' : 'archivos';           // singular/plural
+
+            if ($n > 0) {
+                $archivosHtml = <<<HTML
+                    <tr>
+                        <td colspan="2" style="padding:12px 16px;">
+                            <strong>Archivos cargados:</strong> {$n} {$etq}.
+                        </td>
+                    </tr>
+                HTML;
+            }
+
+            $html = <<<HTML
+                    <!doctype html>
+                    <html>
+                    <head>
+                    <meta charset="utf-8">
+                    <title>{$subject}</title>
+                    </head>
+                    <body style="margin:0;padding:0;background:#f6f8fb;font-family:Arial,Segoe UI,Helvetica,sans-serif;color:#222;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;padding:24px 0;">
+                        <tr>
+                        <td align="center">
+                            <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;box-shadow:0 3px 16px rgba(0,0,0,.06);overflow:hidden;">
+                            <tr>
+                                <td style="padding:20px 24px;background:#d60000;color:#fff;">
+                                <h2 style="margin:0;font-size:20px;">MESA DE AYUDA</h2>
+                                <div style="font-size:12px;opacity:.9;">{$nowHuman}</div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding:20px 24px;">
+                                <h1 style="margin:0 0 8px 0;font-size:22px;">Ticket N.º {$tkt_numero}</h1>
+                                <div style="margin-top:8px;">
+                                    <span style="display:inline-block;padding:6px 10px;border-radius:14px;background:{$estadoColor};color:#fff;font-size:12px;font-weight:600;">{$estado}</span>
+                                    <span style="display:inline-block;padding:6px 10px;border-radius:14px;background:{$prioridadCol};color:#fff;font-size:12px;font-weight:600;margin-left:8px;">Prioridad: {$prioridad}</span>
+                                </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding:0 24px 8px 24px;">
+                                <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                                    <tr>
+                                        <td style="padding:5px 16px;border:1px solid #eee;background:#fafafa;"><strong>Asunto</strong></td>
+                                        <td style="padding:5px 16px;border:1px solid #eee;">{$asunto}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:5px 16px;border:1px solid #eee;background:#fafafa;"><strong>Tema</strong></td>
+                                        <td style="padding:5px 16px;border:1px solid #eee;">{$tema}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:5px 16px;border:1px solid #eee;background:#fafafa;"><strong>Equipo</strong></td>
+                                        <td style="padding:5px 16px;border:1px solid #eee;">{$equipo}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:5px 16px;border:1px solid #eee;background:#fafafa;"><strong>Agente</strong></td>
+                                        <td style="padding:5px 16px;border:1px solid #eee;">{$agente}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:5px 16px;border:1px solid #eee;background:#fafafa;"><strong>Fecha/Hora</strong></td>
+                                        <td style="padding:5px 16px;border:1px solid #eee;">{$fec} {$hor}</td>
+                                    </tr>
+                                    {$archivosHtml}
+                                </table>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding:20px 24px;color:#666;font-size:12px;background:#fbfbfb;text-align:center;">
+                                Si no realizaste esta solicitud, responde este mensaje para revisarlo.
+                                <br>Gracias,<br><strong>Mesa de Ayuda</strong>
+                                </td>
+                            </tr>
+                            </table>
+
+                            <div style="color:#9aa0a6;font-size:12px;margin-top:12px;">Este es un mensaje automático realizado desde Mesa de Ayuda</div>
+                        </td>
+                        </tr>
+                    </table>
+                    </body>
+                    </html>
+                    HTML;
+
+            
+            // 4) Enviar
+            Log::info('mailer-default', ['default' => config('mail.default')]);
+            Log::info('smtp', [
+            'host' => config('mail.mailers.smtp.host'),
+            'port' => config('mail.mailers.smtp.port'),
+            ]);
+            Log::info('outlook', [
+            'host' => config('mail.mailers.outlook.host') ?? null,
+            'port' => config('mail.mailers.outlook.port') ?? null,
+            ]);
+
+            Mail::mailer('outlook')->html($html, function ($message) use ($destinatario, $subject, $savedFiles, $ticketId, $adjuntar) {
+                $message->to($destinatario)->subject($subject);
+
+                if ($adjuntar && !empty($savedFiles)) {
+                    $uploadPath = storage_path("app/tickets/{$ticketId}");
+                    foreach ($savedFiles as $fn) {
+                        $full = $uploadPath . DIRECTORY_SEPARATOR . $fn;
+                        if (is_file($full)) {
+                            $message->attach($full);
+                        }
+                    }
+                }
+            });
+
+        } catch (\Throwable $e) {
+            Log::warning('[tickets] Falló envío de correo: '.$e->getMessage(), [
+                'ticket_id' => $ticketId,
+                'correo'    => $destinatario
+            ]);
+        }
     }
 
 }
