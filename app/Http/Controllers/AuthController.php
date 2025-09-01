@@ -93,6 +93,8 @@ class AuthController extends Controller
             $p_usu_chkadm = $request->has('p_usu_chkadm') ? (int) $request->input('p_usu_chkadm') : 9;
             $p_usu_activo = $request->has('p_usu_activo') ? (int) $request->input('p_usu_activo') : 9;
 
+            //echo "SELECT * FROM tickets.spu_usuario_age($p_usu_id, '$p_usu_apepat', '$p_usu_apemat', '$p_usu_nombre', '$p_usu_loging', $p_usu_chkadm, $p_usu_activo)";
+
             $results = DB::select("SELECT * FROM tickets.spu_usuario_age(?,?,?,?,?,?,?)", [
                 $p_usu_id, $p_usu_apepat, $p_usu_apemat, $p_usu_nombre, $p_usu_loging, $p_usu_chkadm, $p_usu_activo
             ]);

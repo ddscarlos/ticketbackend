@@ -305,7 +305,8 @@ class TicketController extends Controller
             $validator = Validator::make($request->all(), [
                 'p_tkt_id' => 'required|integer',
                 'p_tea_id' => 'required|integer',
-                'p_ori_id' => 'required|integer'
+                'p_ori_id' => 'required|integer',
+                'p_tkt_usutkt' => 'required|integer'
             ]);
             
             if ($validator->fails()) {
@@ -328,11 +329,12 @@ class TicketController extends Controller
                 $p_tkt_asunto = $request->has('p_tkt_asunto') ? (string) $request->input('p_tkt_asunto') : '';
                 $p_tkt_observ = $request->has('p_tkt_observ') ? (string) $request->input('p_tkt_observ') : '';
                 $p_tkt_numcel = $request->has('p_tkt_numcel') ? (string) $request->input('p_tkt_numcel') : '';
+                $p_tkt_usutkt = $request->has('p_tkt_usutkt') ? (int) $request->input('p_tkt_usutkt') : 0;
                 
 
-                //echo "SELECT * FROM tickets.spu_tickets_gra($p_tkt_id,$p_tea_id,$p_usu_id,$p_ori_id,'$p_tkp_numero','$p_tkt_asunto','$p_tkt_observ','$p_tkt_numcel')";
-                $results = DB::select("SELECT * FROM tickets.spu_tickets_gra(?,?,?,?,?,?,?,?)", [
-                    $p_tkt_id,$p_tea_id,$p_usu_id,$p_ori_id,$p_tkp_numero,$p_tkt_asunto,$p_tkt_observ,$p_tkt_numcel
+                //echo "SELECT * FROM tickets.spu_tickets_gra($p_tkt_id,$p_tea_id,$p_usu_id,$p_ori_id,'$p_tkp_numero','$p_tkt_asunto','$p_tkt_observ','$p_tkt_numcel',$p_tkt_usutkt)";
+                $results = DB::select("SELECT * FROM tickets.spu_tickets_gra(?,?,?,?,?,?,?,?,?)", [
+                    $p_tkt_id,$p_tea_id,$p_usu_id,$p_ori_id,$p_tkp_numero,$p_tkt_asunto,$p_tkt_observ,$p_tkt_numcel,$p_tkt_usutkt
                 ]);
                 
                 if (isset($results[0]) && $results[0]->error == 0 && isset($results[0]->numid)) {

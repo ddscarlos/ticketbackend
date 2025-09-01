@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\MaestroController;
-use App\Http\Controllers\ColaboradorController;
 use App\Http\Controllers\AgenteController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AreaController;
@@ -28,17 +27,6 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('seguridad')->group(function () {    
         Route::post('permisoobjetosel', [SeguridadController::class, 'permisoobjetosel']);
         Route::post('perfilusuarioapp', [SeguridadController::class, 'perfilusuarioapp']);
-    });
-
-    Route::prefix('maestro')->group(function () {    
-        Route::post('tipodocidesel', [MaestroController::class, 'tipodocidesel']);
-        Route::post('origensel', [MaestroController::class, 'origensel']);
-    });
-    
-    Route::prefix('colaborador')->group(function () {    
-        Route::post('colaboradorsel', [ColaboradorController::class, 'colaboradorsel']);
-        Route::post('equipotestersel', [ColaboradorController::class, 'equipotestersel']);
-        Route::post('equipocalidadsel', [ColaboradorController::class, 'equipocalidadsel']);
     });
     
     Route::prefix('ticket')->group(function () {
