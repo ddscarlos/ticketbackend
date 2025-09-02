@@ -27,6 +27,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('maestro')->group(function () {    
         Route::post('tipodocidesel', [MaestroController::class, 'tipodocidesel']);
         Route::post('origensel', [MaestroController::class, 'origensel']);
+        Route::post('usuariotkt', [MaestroController::class, 'usuariotkt']);
     });
     
     Route::prefix('seguridad')->group(function () {    

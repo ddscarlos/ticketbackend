@@ -73,4 +73,37 @@ class MaestroController extends Controller
             ], 500);
         }
     }
+
+    public function usuariotkt(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'p_usu_id' => 'required|integer'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en la validación de datos',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+        
+        try {
+            $p_usu_id     = $request->has('p_usu_id') ? (int) $request->input('p_usu_id') : 0;
+            $p_usu_apepat = $request->has('p_usu_apepat') ? (string) $request->input('p_usu_apepat') : '';
+            $p_usu_apemat = $request->has('p_usu_apemat') ? (string) $request->input('p_usu_apemat') : '';
+            $p_usu_nombre = $request->has('p_usu_nombre') ? (string) $request->input('p_usu_nombre') : '';
+
+            $results = DB::select("SELECT * FROM tickets.spu_usuario_tkt(?,?,?,?)", [
+                $p_usu_id,$p_usu_apepat,$p_usu_apemat,$p_usu_nombre
+            ]);
+            return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los datos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
