@@ -22,7 +22,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     
-    Route::post('/files/base64-from-path', [FilePreviewController::class, 'base64FromPath'])->name('files.base64FromPath');    
+    Route::post('/files/base64-from-path', [FilePreviewController::class, 'base64FromPath'])->name('files.base64FromPath');
+
+    Route::prefix('maestro')->group(function () {    
+        Route::post('tipodocidesel', [MaestroController::class, 'tipodocidesel']);
+        Route::post('origensel', [MaestroController::class, 'origensel']);
+    });
     
     Route::prefix('seguridad')->group(function () {    
         Route::post('permisoobjetosel', [SeguridadController::class, 'permisoobjetosel']);
