@@ -110,6 +110,7 @@ class TemayudaController extends Controller
             }
             
             try {
+                $p_tea_id = $request->has('p_tea_id') ? (string) $request->input('p_tea_id') : '';
                 $p_tea_descri = $request->has('p_tea_descri') ? (string) $request->input('p_tea_descri') : '';
                 $p_tea_abrevi = $request->has('p_tea_abrevi') ? (string) $request->input('p_tea_abrevi') : '';
                 $p_tea_idpadr = $request->has('p_tea_idpadr') ? (int) $request->input('p_tea_idpadr') : 0;
@@ -119,8 +120,8 @@ class TemayudaController extends Controller
                 $p_dep_id = $request->has('p_dep_id') ? (int) $request->input('p_dep_id') : 0;
                 $p_tea_usureg = $request->has('p_tea_usureg') ? (int) $request->input('p_tea_usureg') : 1;
 
-                $results = DB::select("SELECT * FROM tickets.spu_temaayuda_reg(?,?,?,?,?,?,?,?)", [
-                    $p_tea_descri,$p_tea_abrevi,$p_tea_idpadr,$p_pri_id,$p_equ_id,$p_age_id,$p_dep_id,$p_tea_usureg
+                $results = DB::select("SELECT * FROM tickets.spu_temaayuda_reg(?,?,?,?,?,?,?,?,?)", [
+                    $p_tea_id,$p_tea_descri,$p_tea_abrevi,$p_tea_idpadr,$p_pri_id,$p_equ_id,$p_age_id,$p_dep_id,$p_tea_usureg
                 ]);
                 return response()->json($results);
             } catch (\Exception $e) {
@@ -179,11 +180,12 @@ class TemayudaController extends Controller
             try {
                 $p_tea_id = $request->has('p_tea_id') ? (int) $request->input('p_tea_id') : 0;
                 $p_tea_idpadr = $request->has('p_tea_idpadr') ? (int) $request->input('p_tea_idpadr') : 0;
+                $p_tea_descri = $request->has('p_tea_descri') ? (string) $request->input('p_tea_descri') : '';
+                $p_equ_id = $request->has('p_equ_id') ? (int) $request->input('p_equ_id') : 0;
+                $p_age_id = $request->has('p_age_id') ? (int) $request->input('p_age_id') : 0;
                 $p_tea_activo = $request->has('p_tea_activo') ? (int) $request->input('p_tea_activo') : 1;
 
-                $results = DB::select("SELECT * FROM tickets.spu_temaayuda_sel(?,?,?)", [
-                    $p_tea_id,$p_tea_idpadr,$p_tea_activo
-                ]);
+                $results = DB::select("SELECT * FROM tickets.spu_temaayuda_sel(?,?,?,?,?,?)", [$p_tea_id,$p_tea_idpadr,$p_tea_descri,$p_equ_id,$p_age_id,$p_tea_activo]);
                 return response()->json($results);
             } catch (\Exception $e) {
                 return response()->json([

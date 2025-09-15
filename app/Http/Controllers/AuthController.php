@@ -28,7 +28,7 @@ class AuthController extends Controller
     {
         $p_loging =  $request->has('p_loging') ? (string) $request->input('p_loging') : '';
         $p_passwd =  $request->has('p_passwd') ? (string) $request->input('p_passwd') : '';
-        $apl_id = 1;
+        $apl_id = 2;
 
         try {
             $result = DB::select("

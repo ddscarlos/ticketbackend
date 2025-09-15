@@ -33,11 +33,15 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('seguridad')->group(function () {    
         Route::post('perfilusuarioobjetosel', [SeguridadController::class, 'perfilusuarioobjetosel']);
         Route::post('perfilusuarioapp', [SeguridadController::class, 'perfilusuarioapp']);
+        Route::post('cambiarclave', [SeguridadController::class, 'cambiarclave']);
     });
     
     Route::prefix('ticket')->group(function () {
         Route::post('agentegra', [AgenteController::class, 'agentegra']);
         Route::post('agentesel', [AgenteController::class, 'agentesel']);
+        Route::post('agenteman', [AgenteController::class, 'agenteman']);
+        Route::post('agenteanu', [AgenteController::class, 'agenteanu']);
+        Route::post('equipoagentereg', [AgenteController::class, 'equipoagentereg']);
         Route::post('archivossel', [ArchivoController::class, 'archivossel']);
         Route::post('archivosanu', [ArchivoController::class, 'archivosanu']);
         Route::post('areausuarioanu', [AreaController::class, 'areausuarioanu']);
@@ -75,6 +79,9 @@ Route::middleware('auth:api')->group(function () {
         Route::post('ticketslis', [TicketController::class, 'ticketslis']);
         Route::post('ticketsver', [TicketController::class, 'ticketsver']);
         Route::post('ticketsdsh', [TicketController::class, 'ticketsdsh']);
+        Route::post('ticketsxfxa', [TicketController::class, 'ticketsxfxa']);
+        Route::post('ticketsxfae', [TicketController::class, 'ticketsxfae']);
+        Route::post('ticketsxtaf', [TicketController::class, 'ticketsxtaf']);
         Route::post('ticketsxagesel', [TicketController::class, 'ticketsxagesel']);
         Route::post('ticketsxainsel', [TicketController::class, 'ticketsxainsel']);
         Route::post('ticketsxapesel', [TicketController::class, 'ticketsxapesel']);
