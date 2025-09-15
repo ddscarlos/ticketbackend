@@ -78,6 +78,33 @@ class AgenteController extends Controller
             }
     }
     
+    public function agentetkt(Request $request): JsonResponse{
+            $validator = Validator::make($request->all(), [
+                'p_equ_id' => 'required|integer'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error en la validación de datos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+            
+            try {
+                $p_equ_id = $request->has('p_equ_id') ? (int) $request->input('p_equ_id') : 0;
+
+                $results = DB::select("SELECT * FROM tickets.spu_agente_tkt(?)", [$p_equ_id]);
+                return response()->json($results);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los datos',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+    }
+    
     public function agenteman(Request $request): JsonResponse{
             $validator = Validator::make($request->all(), [
                 'p_age_id' => 'required|integer',

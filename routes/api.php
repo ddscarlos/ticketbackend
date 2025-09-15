@@ -39,6 +39,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('ticket')->group(function () {
         Route::post('agentegra', [AgenteController::class, 'agentegra']);
         Route::post('agentesel', [AgenteController::class, 'agentesel']);
+        Route::post('agentetkt', [AgenteController::class, 'agentetkt']);
         Route::post('agenteman', [AgenteController::class, 'agenteman']);
         Route::post('agenteanu', [AgenteController::class, 'agenteanu']);
         Route::post('equipoagentereg', [AgenteController::class, 'equipoagentereg']);
