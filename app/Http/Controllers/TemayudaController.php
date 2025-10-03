@@ -119,7 +119,8 @@ class TemayudaController extends Controller
                 $p_age_id = $request->has('p_age_id') ? (int) $request->input('p_age_id') : 0;
                 $p_dep_id = $request->has('p_dep_id') ? (int) $request->input('p_dep_id') : 0;
                 $p_tea_usureg = $request->has('p_tea_usureg') ? (int) $request->input('p_tea_usureg') : 1;
-
+                
+                //echo "SELECT * FROM tickets.spu_temaayuda_reg($p_tea_id,$p_tea_descri,$p_tea_abrevi,$p_tea_idpadr,$p_pri_id,$p_equ_id,$p_age_id,$p_dep_id,$p_tea_usureg)";
                 $results = DB::select("SELECT * FROM tickets.spu_temaayuda_reg(?,?,?,?,?,?,?,?,?)", [
                     $p_tea_id,$p_tea_descri,$p_tea_abrevi,$p_tea_idpadr,$p_pri_id,$p_equ_id,$p_age_id,$p_dep_id,$p_tea_usureg
                 ]);

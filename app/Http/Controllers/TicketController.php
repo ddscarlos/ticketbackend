@@ -217,6 +217,7 @@ class TicketController extends Controller
                 $p_tkt_observ = $request->has('p_tkt_observ') ? (string) $request->input('p_tkt_observ') : '';
                 $p_anu_usureg = $request->has('p_anu_usureg') ? (int) $request->input('p_anu_usureg') : 0;
 
+                //echo "SELECT * FROM tickets.spu_tickets_anu($p_tkt_id,'$p_tkt_observ',$p_anu_usureg)";
                 $results = DB::select("SELECT * FROM tickets.spu_tickets_anu(?,?,?)", [
                     $p_tkt_id,$p_tkt_observ,$p_anu_usureg
                 ]);
@@ -251,6 +252,8 @@ class TicketController extends Controller
                 $p_tkt_observ = $request->has('p_tkt_observ') ? (string) $request->input('p_tkt_observ') : '';
                 $p_asg_usureg = $request->has('p_asg_usureg') ? (int) $request->input('p_asg_usureg') : 1;
 
+                //echo "SELECT * FROM tickets.spu_tickets_asg($p_tkt_id,$p_age_id,'$p_tkt_observ',$p_asg_usureg)";
+                
                 $results = DB::select("SELECT * FROM tickets.spu_tickets_asg(?,?,?,?)", [
                     $p_tkt_id,$p_age_id,$p_tkt_observ,$p_asg_usureg
                 ]);
@@ -777,6 +780,43 @@ class TicketController extends Controller
 
                 $results = DB::select("SELECT * FROM tickets.spu_tickets_sel(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [
                     $p_tkt_id,$p_tkt_numero,$p_est_id,$p_tea_id,$p_pri_id,$p_equ_id,$p_age_id,$p_usu_id,$p_ori_id,$p_sed_id,$p_ard_id,$p_tkt_fecini,$p_tkt_fecfin,$p_tkt_activo
+                ]);
+                return response()->json($results);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los datos',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+    }
+    
+    public function ticketsder(Request $request): JsonResponse{
+            $validator = Validator::make($request->all(), [
+                'p_tkt_id' => 'required|integer',
+                'p_equ_id' => 'required|integer',
+                'p_age_id' => 'required|integer',
+                'p_der_usureg' => 'required|integer'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error en la validación de datos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+            
+            try {
+                $p_tkt_id = $request->has('p_tkt_id') ? (int) $request->input('p_tkt_id') : 0;
+                $p_equ_id = $request->has('p_equ_id') ? (int) $request->input('p_equ_id') : 0;
+                $p_age_id = $request->has('p_age_id') ? (int) $request->input('p_age_id') : 0;
+                $p_tkt_observ = $request->has('p_tkt_observ') ? (string) $request->input('p_tkt_observ') : '';
+                $p_der_usureg = $request->has('p_der_usureg') ? (int) $request->input('p_der_usureg') : 0;
+
+                //echo "SELECT * FROM tickets.spu_tickets_der($p_tkt_id,$p_equ_id,$p_age_id,'$p_tkt_observ',$p_der_usureg)";
+                $results = DB::select("SELECT * FROM tickets.spu_tickets_der(?,?,?,?,?)", [
+                    $p_tkt_id,$p_equ_id,$p_age_id,$p_tkt_observ,$p_der_usureg
                 ]);
                 return response()->json($results);
             } catch (\Exception $e) {

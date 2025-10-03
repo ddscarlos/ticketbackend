@@ -105,6 +105,33 @@ class AgenteController extends Controller
             }
     }
     
+    public function equipoagenteanu(Request $request): JsonResponse{
+            $validator = Validator::make($request->all(), [
+                'p_eag_id' => 'required|integer'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error en la validación de datos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+            
+            try {
+                $p_eag_id = $request->has('p_eag_id') ? (int) $request->input('p_eag_id') : 0;
+                //echo "SELECT * FROM tickets.spu_equipoagente_anu($p_eag_id)";
+                $results = DB::select("SELECT * FROM tickets.spu_equipoagente_anu(?)", [$p_eag_id]);
+                return response()->json($results);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los datos',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+    }
+    
     public function agenteman(Request $request): JsonResponse{
             $validator = Validator::make($request->all(), [
                 'p_age_id' => 'required|integer',
@@ -126,11 +153,16 @@ class AgenteController extends Controller
                 $p_usu_apepat = $request->has('p_usu_apepat') ? (string) $request->input('p_usu_apepat') : '';
                 $p_usu_apemat = $request->has('p_usu_apemat') ? (string) $request->input('p_usu_apemat') : '';
                 $p_usu_nombre = $request->has('p_usu_nombre') ? (string) $request->input('p_usu_nombre') : '';
-                $p_age_activo = $request->has('p_age_activo') ? (int) $request->input('p_age_activo') : 1;
+                
+                $p_jsn_permis = $request->input('p_jsn_permis');
+                if (is_array($p_jsn_permis)) {
+                    $p_jsn_permis = json_encode($p_jsn_permis, JSON_UNESCAPED_UNICODE);
+                }
 
+                $p_age_activo = $request->has('p_age_activo') ? (int) $request->input('p_age_activo') : 1;
                 //echo "SELECT * FROM tickets.spu_agente_man($p_age_id,$p_usu_id,'$p_usu_apepat','$p_usu_apemat','$p_usu_nombre',$p_age_activo)";
-                $results = DB::select("SELECT * FROM tickets.spu_agente_man(?,?,?,?,?,?)", [
-                    $p_age_id,$p_usu_id,$p_usu_apepat,$p_usu_apemat,$p_usu_nombre,$p_age_activo
+                $results = DB::select("SELECT * FROM tickets.spu_agente_man(?,?,?,?,?,?,?)", [
+                    $p_age_id,$p_usu_id,$p_usu_apepat,$p_usu_apemat,$p_usu_nombre,$p_jsn_permis,$p_age_activo
                 ]);
                 return response()->json($results);
             } catch (\Exception $e) {

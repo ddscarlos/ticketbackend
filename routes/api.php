@@ -43,6 +43,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('agenteman', [AgenteController::class, 'agenteman']);
         Route::post('agenteanu', [AgenteController::class, 'agenteanu']);
         Route::post('equipoagentereg', [AgenteController::class, 'equipoagentereg']);
+        Route::post('equipoagenteanu', [AgenteController::class, 'equipoagenteanu']);
         Route::post('archivossel', [ArchivoController::class, 'archivossel']);
         Route::post('archivosanu', [ArchivoController::class, 'archivosanu']);
         Route::post('areausuarioanu', [AreaController::class, 'areausuarioanu']);
@@ -77,6 +78,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('ticketsres', [TicketController::class, 'ticketsres']);
         Route::post('ticketsrus', [TicketController::class, 'ticketsrus']);
         Route::post('ticketssel', [TicketController::class, 'ticketssel']);
+        Route::post('ticketsder', [TicketController::class, 'ticketsder']);
         Route::post('ticketslis', [TicketController::class, 'ticketslis']);
         Route::post('ticketsver', [TicketController::class, 'ticketsver']);
         Route::post('ticketsdsh', [TicketController::class, 'ticketsdsh']);
